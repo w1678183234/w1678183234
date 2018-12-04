@@ -1,0 +1,783 @@
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using MySql.Data.MySqlClient;
+//using System.Data;
+//using System.Configuration;
+//using System.Collections;
+//using MySql;
+////create by wcy
+////DataBase Operation 
+
+//namespace DbAccess
+//{
+//    public class MySqlHelper
+//    {
+//        返回主页 登录者
+//博客园首页新随笔联系订阅管理
+//随笔 - 0  文章 - 0  评论 - 0
+//单表的增删改查加工厂
+
+
+//model层
+
+//[Table("TGoods")]
+//public class Goods
+//        {
+//            [Key]
+
+//            public int GoodsID { get; set; }
+//            /// <summary>
+//            /// 商品名称
+//            /// </summary>
+//            [StringLength(50)]
+//            public string GoodsName { get; set; }
+//            /// <summary>
+//            /// 商品单价
+//            /// </summary>
+//            public int Price { get; set; }
+//            /// <summary>
+//            /// 库存
+//            /// </summary>
+
+//            public int Number { get; set; }
+//            /// <summary>
+//            /// 上架时间
+//            /// </summary>
+//            [StringLength(50)]
+//            public string StartTime { get; set; }
+//            /// <summary>
+//            /// 下架时间
+//            /// </summary>
+//            [StringLength(50)]
+//            public string StopTime { get; set; }
+//            /// <summary>
+//            /// 商品描述
+//            /// </summary>
+//            [StringLength(50)]
+//            public string Remark { get; set; }
+
+
+
+
+
+//            DAL层
+
+//using WXJ.MODEL;
+//using System.Data.Entity;
+//using System.Data.SqlClient;
+//using System.Data.Entity.Infrastructure;
+//using IDAL;
+//public class GoodsDAL : IGoodsDAL
+//    {
+//        GoodsDBContext dbContext = null;
+//        public GoodsDAL()
+//        {
+//            dbContext = new GoodsDBContext();
+//        }
+//        /// 添加商品
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        public int AddGoods(Goods goods)
+//        {
+//            SqlParameter[] parameters = new SqlParameter[]
+//            {
+//new SqlParameter("@GoodsName",goods.GoodsName),
+//new SqlParameter("@Price",goods.Price),
+//new SqlParameter("@Number",goods.Number),
+//new SqlParameter("@StartTime",goods.StartTime),
+//new SqlParameter ("@StopTime",goods.StopTime),
+//new SqlParameter("@Remark",goods.Remark),
+//            };
+//            return dbContext.Database.ExecuteSqlCommand("exec p_AddGoods @GoodsName,@Price,@Number,@StartTime,@StopTime,@Remark", parameters);
+//        }
+//        /// <summary>
+//        /// 显示商品
+//        /// </summary>
+//        /// <returns></returns>
+//        public List<Goods> GetGoods()
+//        {
+//            DbRawSqlQuery<Goods> goodsList = dbContext.Database.SqlQuery<Goods>("exec p_GetGoods");
+//            return goodsList.ToList();
+//        }
+//        /// <summary>
+//        /// 删除
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        public int DeleteGoods(int id)
+//        {
+//            return dbContext.Database.ExecuteSqlCommand("exec p_DeleteGoods @GoodsID", new SqlParameter("@GoodsID", id));
+//        }
+//        /// <summary>
+//        /// 根据id获取单个实体
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        public Goods GetByID(int id)
+//        {
+//            var getByid = dbContext.Database.SqlQuery<Goods>("exec p_GetGoodsByID @GoodsID", new SqlParameter("@GoodsID", id));
+//            return getByid.FirstOrDefault();
+//        }
+//        /// <summary>
+//        /// 修改
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        public int UpdateGoods(Goods goods)
+//        {
+//            SqlParameter[] paramaters = new SqlParameter[]
+//            {
+//new SqlParameter("@GoodsName",goods.GoodsName),
+//new SqlParameter("@Price",goods.Price),
+//new SqlParameter("@Number",goods.Number),
+//new SqlParameter("@StartTime",goods.StartTime),
+//new SqlParameter ("@StopTime",goods.StopTime),
+//new SqlParameter("@Remark",goods.Remark),
+//new SqlParameter("@GoodsID",goods.GoodsID),
+//            };
+//            return dbContext.Database.ExecuteSqlCommand("exec p_AddGoods @GoodsName,@Price,@StartTime,@StopTime,@Remark,@GoodsID", paramaters);
+//        }
+//    }
+
+
+
+
+
+//    BLL层
+
+ 
+
+//using WXJ.MODEL;
+//using WXJ.DAL;
+//using Factory;
+//using WXJ.IDAL;
+//public class GoodsLogic
+//    {
+//        Factory factory = new Factory();
+//        //IGoodsDAL goods = factory.CreateIGoodsDAL();
+//        IGoodsDAL goodaDAL = null;
+//        public GoodsLogic()
+//        {
+//            if (goodaDAL == null)
+//            {
+//                goodaDAL = factory.CreateIGoodsDAL();
+//            }
+//        }
+
+//        /// <summary>
+//        /// 添加商品
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        public int AddGoods(Goods goods)
+//        {
+//            return goodaDAL.AddGoods(goods);
+//        }
+//        /// <summary>
+//        /// 显示商品
+//        /// </summary>
+//        /// <returns></returns>
+//        public List<Goods> GetGoods()
+//        {
+//            return goodaDAL.GetGoods();
+//        }
+//        /// <summary>
+//        /// 删除
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        public int DeleteGoods(int id)
+//        {
+//            return goodaDAL.DeleteGoods(id);
+//        }
+//        /// <summary>
+//        /// 根据id获取单个实体
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        public Goods GetByID(int id)
+//        {
+//            return goodaDAL.GetByID(id);
+//        }
+//        /// <summary>
+//        /// 修改
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        public int UpdateGoods(Goods goods)
+//        {
+//            return goodaDAL.UpdateGoods(goods);
+//        }
+//    }
+
+
+
+
+
+
+
+//    工厂的IDAL
+
+//using MODEL;
+//public interface IGoodsDAL
+//    {
+
+//        /// <summary>
+//        /// 添加商品
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        int AddGoods(Goods goods);
+
+//        /// <summary>
+//        /// 显示商品
+//        /// </summary>
+//        /// <returns></returns>
+//        List<Goods> GetGoods();
+
+
+//        /// <summary>
+//        /// 删除
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        int DeleteGoods(int id);
+
+//        /// <summary>
+//        /// 根据id获取单个实体
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        Goods GetByID(int id);
+
+
+
+//        /// <summary>
+//        /// 修改
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        int UpdateGoods(Goods goods);
+
+//        定义一个工厂接口
+
+ 
+
+//using System.Configuration;
+//using WXJ.IDAL;
+//using System.Reflection;
+//public class Factory
+//    {
+//        private static readonly string AssemblyName = ConfigurationManager.AppSettings["GoodsDAL"];
+//        public IGoodsDAL CreateIGoodsDAL()
+//        {
+//            return (IGoodsDAL)Assembly.Load(AssemblyName).CreateInstance(AssemblyName + ".GoodsDAL");
+//        }
+
+
+
+//        API控制器
+
+ 
+
+ 
+
+ 
+
+//using WXJ.BLL;
+//using WXJ.MODEL;
+//[RoutePrefix("Goods")]
+//    public class GoodsController : ApiController
+//    {
+//        public const int PAGECOUNT = 3;
+//        GoodsLogic goodsLogic = new GoodsLogic();
+//        /// <summary>
+//        /// 添加商品
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        [Route("AddGoods")]
+//        [HttpPost]
+//        public int AddGoods(Goods goods)
+//        {
+//            return goodsLogic.AddGoods(goods);
+//        }
+//        /// <summary>
+//        /// 显示商品
+//        /// </summary>
+//        /// <param name="Page"></param>
+//        /// <param name="Name"></param>
+//        /// <returns></returns>
+//        [Route("GetGoods")]
+//        [HttpGet]
+
+//        public PageBox GetGoods(int Page = 1, string Name = null)
+//        {
+//            List<Goods> GoodsList = goodsLogic.GetGoods();
+//            PageBox pageBox = new PageBox();
+//            if (!string.IsNullOrWhiteSpace(Name))
+//            {
+//                GoodsList = GoodsList.Where(r => r.GoodsName.Contains(Name)).ToList();
+//            }
+//            pageBox.CurrentPage = Page;
+//            pageBox.TotalPage = GoodsList.Count() / PAGECOUNT + (GoodsList.Count % PAGECOUNT == 0 ? 0 : 1);
+//            pageBox.Data = GoodsList.Skip((Page - 1) * PAGECOUNT).Take(PAGECOUNT);
+//            return pageBox;
+//        }
+//        /// <summary>
+//        /// 删除
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        [Route("DeleteGoods")]
+//        [HttpGet]
+//        public int DeleteGoods(int id)
+//        {
+//            return goodsLogic.DeleteGoods(id);
+//        }
+//        /// <summary>
+//        /// 根据id获取单个实体
+//        /// </summary>
+//        /// <param name="id"></param>
+//        /// <returns></returns>
+//        [Route("GetByID")]
+//        [HttpGet]
+//        public Goods GetByID(int id)
+//        {
+//            return goodsLogic.GetByID(id);
+//        }
+//        /// <summary>
+//        /// 修改
+//        /// </summary>
+//        /// <param name="goods"></param>
+//        /// <returns></returns>
+//        [Route("UpdateGoods")]
+//        [HttpPost]
+//        public int UpdateGoods(Goods goods)
+//        {
+//            return goodsLogic.UpdateGoods(goods);
+//        }
+
+
+
+
+
+
+
+
+
+//        MVC试图 添加
+
+
+//@{
+//Layout = null;
+//}
+
+//<!DOCTYPE html>
+
+//<html>
+//<head>
+//<meta name = "viewport" content="width=device-width" />
+//<title></title>
+//<script src = "~/js/jquery-3.1.1.js" ></ script >
+//< script src="~/js/jquery.form.js"></script>
+//<script type = "text/javascript" >
+
+//$(function()
+//    {
+//$("#btnAdd").click(function() {
+//            if ($("input[name=GoodsName]").val().trim().length <= 0)
+//{
+//                alert("商品名称不能为空");
+//                return;
+//            }
+
+
+//$.ajax({
+//            url: "http://localhost:8089/Goods/AddGoods",
+//type: 'post',
+//data: $("#FormData").serialize(),
+//success: function(data) {
+//                    if (data > 0)
+//                    {
+//                        alert("添加成功");
+//                    }
+//                }
+//            })
+//})
+//})
+//</script>
+//</head>
+//<body>
+//<div> 
+//<form method = "post" enctype="multipart/form-data" id="FormData">
+//<table class="table table-bordered table-hover" style="width:600px">
+//<tr>
+//<td>商品名称</td>
+//<td>
+//<input type = "text" name="GoodsName" />
+//</td>
+//</tr>
+//<tr>
+//<td>商品单价</td>
+//<td>
+//<input type = "text" name="Price" />
+//</td>
+//</tr>
+
+//<tr>
+//<td>库存</td>
+//<td>
+//<input type = "text" name="Number" />
+//</td>
+//</tr>
+//<tr>
+//<td>上架时间</td>
+//<td>
+//<input type = "text" name="StartTime" />
+//</td>
+//</tr>
+//<tr>
+//<td>下架时间</td>
+//<td>
+//<input type = "text" name="StopTime" />
+//</td>
+//</tr>
+//<tr>
+//<td>商品描述</td>
+//<td>
+
+//<textarea name = "Remark" rows="4" cols="30"></textarea>
+//</td>
+//</tr>
+//<tr>
+//<td>
+//<input type = "button" id="btnAdd" value="新增" class="btn btn-info" />
+//</td>
+//<td>
+//<a href = "/Goods/Index" > 显示列表 </ a >
+//</ td >
+//</ tr >
+//</ table >
+
+//</ form >
+//</ div >
+//</ body >
+//</ html >
+
+
+
+
+
+//显示
+
+ 
+
+
+//@{
+//Layout = null;
+//}
+
+//<!DOCTYPE html>
+
+//<html>
+//<head>
+//<meta name = "viewport" content="width=device-width" />
+//<title>Index</title>
+//<script src = "~/js/jquery-3.1.1.js" ></ script >
+//< script src="~/js/jquery.form.js"></script>
+//<script type = "text/javascript" >
+//var currentPage = 1;
+//var totaPage = 0;
+//$(function()
+//{
+//    LoadData();
+//$("#btnSearch").click(function() {
+//        currentPage = 1;
+//        LoadData();
+//    })
+
+//});
+////加载数据
+//function LoadData()
+//{
+//$.ajax({
+//    url: 'http://localhost:8089/Goods/GetGoods',
+//type: 'get',
+//data:
+//        {
+//        Page: currentPage,
+//Name:$("#goodsName").val(),
+//},
+//success: function(data) {
+//            currentPage = data.CurrentPage;
+//            totaPage = data.TotaPage;
+//$("#tab").children().children().not(":first").remove();
+
+//$(data.Data).each(function(index, data)
+//{
+//                var str = "<tr>";
+//                str += "<td>" + data.GoodsID + "</td>";
+//                str += "<td>" + data.GoodsName + "</td>";
+//                str += "<td>" + data.Price + "</td>";
+//                str += "<td>" + data.Number + "</td>";
+//                str += "<td>" + data.StartTime + "</td>";
+//                str += "<td>" + data.StopTime + "</td>";
+//                str += "<td>" + data.Remark + "</td>";
+//                str += "<td><a href='#' onclick=Delete(" + data.GoodsID + ",this)>删除</a><a href='/Goods/Update?ID=" + data.GoodsID + "'>修改</a></td>";
+//                str += "</tr>";
+//$("#tab").append(str);
+//            })
+//}
+//    })
+//}
+////删除
+//function Delete(ID, obj)
+//{
+//$.ajax({
+//    url: 'http://localhost:8089/Goods/DeleteGoods',
+//type: 'get',
+//data:
+//        {
+//        id:
+//            ID
+//},
+//success:
+//        function(data)
+//{
+//            if (data > 0)
+//            {
+//                alert("删除成功");
+//$(obj).parent().parent().remove();
+//            }
+//            else
+//            {
+//                alert("删除成功");
+//            }
+//        }
+//    })
+//}
+
+////首页
+//function FirstPage()
+//{
+//    currentPage = 1;
+//    LoadData();
+//}
+////尾页
+//function LastPage()
+//{
+//    currentPage = totalPage;
+//    LoadData();
+//}
+////上一页
+//function PrevPage()
+//{
+//    if (currentPage - 1 <= 0)
+//    {
+//        alert("已经是第一页了");
+//        return;
+//    }
+//    currentPage--;
+//    LoadData();
+//}
+//// 下一页
+//function NextPage()
+//{
+//    if (currentPage + 1 > totalPage)
+//    {
+//        alert("已经是最后一页");
+//        return;
+//    }
+//    currentPage++;
+//    LoadData();
+//}
+
+
+//</script>
+//</head>
+//<body>
+//<div> 
+//商品ID:<input type = "text" id="goodsID" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品名称:<input type = "text" id="goodsName" />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//<input type = "button" value="查询" id="btnSearch" class="btn btn-danger" />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;
+//<a href = "/Goods/Add" > 新增商品 </ a >
+//< table class="table table-bordered table-hover" style="width:800px" id="tab">
+//<tr style = "text-align:center;background-color:skyblue;color:white" >
+//< th style="text-align:center">商品ID</th>
+//<th style = "text-align:center" > 商品名称 </ th >
+//< th style="text-align:center">商品单价</th>
+//<th style = "text-align:center" > 库存 </ th >
+//< th style="text-align:center">上架日期</th>
+//<th style = "text-align:center" > 下架日期 </ th >
+//< th style="text-align:center">商品描述</th>
+//<th style = "text-align:center" > 操作 </ th >
+//</ tr >
+//</ table >
+//< a href="#" onclick="FirstPage()">首页</a>
+//<a href = "#" onclick="PrevPage()">上一页</a>
+//<a href = "#" onclick="NextPage()">下一页</a>
+//<a href = "#" onclick="LastPage()">尾页</a>
+//</div>
+//</body>
+//</html>
+
+ 
+
+ 
+
+//修改
+
+ 
+
+ 
+
+ 
+
+
+//@{
+//Layout = null;
+//}
+
+//<!DOCTYPE html>
+
+//<html>
+//<head>
+//<meta name = "viewport" content="width=device-width" />
+//<title></title>
+//<script src = "~/js/jquery-3.1.1.js" ></ script >
+//< script src="~/js/jquery.form.js"></script>
+//<script type = "text/javascript" >
+
+//$(function()
+//{
+//    alert(0)
+//alert(@Request.QueryString["ID"]);
+////反填
+//$.ajax({
+//    url: 'http://localhost:8089/Goods/GetByID',
+//type: 'get',
+//data:
+//        {
+//        id:
+//            '@Request.QueryString["ID"]'
+//},
+//success: function(data) {
+//$("input[name=GoodsID]").val(data.GoodsID);
+//$("input[name=GoodsName]").val(data.GoodsName);
+//$("input[name=Price]").val(data.Price);
+//$("input[name=Number]").val(data.Number);
+//$("input[name=StartTime]").val(data.StartTime);
+//$("input[name=StopTime]").val(data.StopTime);
+//$("textarea[name=Remark]").val(data.Remark);
+
+//        }
+
+//    })//反填的
+
+//$("#btnAdd").click(function() {
+
+//        //非空验证
+//        if ($("input[name=GoodsName]").val().trim().length <= 0) {
+//            alert("商品名称不能为空");
+//            return;
+//        }
+//$.ajax({
+//        url: "http://localhost:8089/Goods/UpdateGoods",
+//type: 'post',
+//data: $("#FormData").serialize(),
+//success: function(data) {
+//                if (data > 0)
+//                {
+//                    alert("修改成功");
+//                }
+//            }
+//        })
+
+////$.ajax({
+//// url: http://localhost:8089/Goods/UpdateGoods',
+////type: 'post',
+////data: $("#FormData").serialize(),
+////success: function (data) {
+//// if (data > 0) {
+//// alert("修改成功");
+//// }
+//// else {
+//// alert("修改失败");
+//// }
+//// }
+
+//})//添加的
+//})//文档就绪函数*
+//</script>
+//</head>
+//<body>
+//<div>
+//<form method = "post" enctype="multipart/form-data" id="FormData">
+//<input type = "text" name="GoodsID" />
+//<table class="table table-bordered table-hover" style="width:600px">
+//<tr>
+//<td>商品名称</td>
+//<td>
+//<input type = "text" name="GoodsName" />
+//</td>
+//</tr>
+//<tr>
+//<td>商品单价</td>
+//<td>
+//<input type = "text" name="Price" />
+//</td>
+//</tr>
+
+//<tr>
+//<td>库存</td>
+//<td>
+//<input type = "text" name="Number" />
+//</td>
+//</tr>
+//<tr>
+//<td>上架时间</td>
+//<td>
+//<input type = "text" name="StartTime" />
+//</td>
+//</tr>
+//<tr>
+//<td>下架时间</td>
+//<td>
+//<input type = "text" name="StopTime" />
+//</td>
+//</tr>
+//<tr>
+//<td>商品描述</td>
+//<td>
+
+//<textarea name = "Remark" rows="4" cols="30"></textarea>
+//</td>
+//</tr>
+//<tr>
+//<td>
+//<input type = "button" id="btnAdd" value="修改" class="btn btn-info" />
+//</td>
+//<td>
+//<a href = "/Goods/Index" > 显示列表 </ a >
+//</ td >
+//</ tr >
+//</ table >
+
+//</ form >
+//</ div >
+//</ body >
+//</ html >
+
+
+
+//    }
+//}
